@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet,Image, KeyboardAvoidingView, TextInput, View , TouchableOpacity, TouchableWithoutFeedback , Text } from 'react-native';
+import React,{useState} from 'react';
+import { StyleSheet,Image, KeyboardAvoidingView, TextInput, View , TouchableOpacity, TouchableWithoutFeedback , Text,ActivityIndicator } from 'react-native';
 import { Icon } from 'react-native-vector-icons/Entypo';
 import Theme from '../Constants/Theme';
 import { StatusBar } from 'expo-status-bar';
@@ -7,10 +7,16 @@ import Images from '../Constants/Images';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 export default function Login({ navigation }){
+    const [login, setLogin]=useState(false);
     return(
         
         <KeyboardAvoidingView style={styles.container}>
                 <StatusBar />
+                {login && 
+                <View style={styles.Modal}>
+                    <ActivityIndicator size="large" color={Theme.COLORS.DEFAULT} />
+                </View>
+                }
                 <View style={styles.Logo}>
                     <Image source={Images.Logo}/>
                 </View>
@@ -19,9 +25,12 @@ export default function Login({ navigation }){
                     initialValues={{email:'', password:'',}}
                     validationSchema={loginValidations}
                     onSubmit={(values,actions)=>{
-                       alert(values);
-                        actions.resetForm();
+                        setLogin(true)
+                       setTimeout(()=>{ actions.resetForm();
+                        setLogin(false)
                         navigation.navigate('Dashboard');
+                        } ,1000)
+                       
                     } }
                 >
                     {(FormikProps) => (
@@ -126,6 +135,18 @@ const styles=StyleSheet.create({
     Error:{
         color:Theme.COLORS.ERROR,
         alignSelf:'center',
+    },
+    Modal:{
+        alignSelf:'center',
+        justifyContent:'center',
+        alignContent:'center',
+        position:'absolute',
+        height:100,
+        width:100,
+        elevation:3,
+        zIndex:5,
+        backgroundColor:Theme.COLORS.WHITE,
+        borderRadius:20,
     }
 
 });

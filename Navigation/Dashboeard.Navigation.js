@@ -68,7 +68,8 @@ export default function Dashboard(){
                 drawerActiveBackgroundColor:Theme.COLORS.DEFAULT,
                 drawerInactiveTintColor:Theme.COLORS.MUTED,
                 drawerLabelStyle:{
-                    marginLeft:15
+                    marginLeft:15,
+                    fontSize:20
                 }
               }}
            

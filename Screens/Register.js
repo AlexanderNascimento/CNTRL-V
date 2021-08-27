@@ -66,7 +66,7 @@ const config = {
               <Formik
                     initialValues={{name:'',sobrenome:'',email:'', password:'',idSus:'',date:'',gen:''}}
                     onSubmit={(values,actions)=>{
-                       alert(JSON.stringify(values,null,2));
+                       //alert(JSON.stringify(values,null,2));
                         actions.resetForm();
                         navigation.navigate('RegisterSecondFase');
                     } }
