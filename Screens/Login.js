@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { StyleSheet, Image, KeyboardAvoidingView, TextInput, View, TouchableOpacity, TouchableWithoutFeedback, Text, ActivityIndicator } from 'react-native';
-import { Icon } from 'react-native-vector-icons/Entypo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Theme from '../Constants/Theme';
 import { StatusBar } from 'expo-status-bar';
 import Images from '../Constants/Images';
@@ -8,6 +8,47 @@ import { Formik } from 'formik';
 import * as yup from 'yup';
 export default function Login({ navigation }) {
     const [login, setLogin] = useState(false);
+
+    useEffect(() => {
+        async function logIn(){
+            let response = await AsyncStorage.getItem('userData');
+            let json= await JSON.parse(response);
+            if(json !== null){
+                setLogin(false);
+                navigation.navigate('Dashboard');
+            }else{
+                setLogin(false);
+            }
+        }
+        setLogin(true);
+        logIn();
+        
+    },[])
+
+    async function LogIn(values,actions){
+        const data= await fetch('http://192.168.0.102:3000/login', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+               email:values.email,
+               password:values.password,
+              })
+        });
+        const user=await  data.json();
+      
+        if(user.aproved){
+            await AsyncStorage.setItem('userData',JSON.stringify(user.mensage))
+            actions.resetForm();
+            setLogin(false)
+            navigation.navigate('Dashboard');
+        }else{
+            setLogin(false)
+        }
+    }
+
     return (
 
         <KeyboardAvoidingView style={styles.container}>
@@ -25,18 +66,14 @@ export default function Login({ navigation }) {
                 initialValues={{ email: '', password: '', }}
                 validationSchema={loginValidations}
                 onSubmit={(values, actions) => {
-                    setLogin(true)
-                    setTimeout(() => {
-                        actions.resetForm();
-                        setLogin(false)
-                        navigation.navigate('Dashboard');
-                    }, 1000)
 
+                    setLogin(true);
+                    LogIn(values,actions);
                 }}
             >
                 {(FormikProps) => (
                     <>
-                        {FormikProps.errors.email && <Text style={styles.Error}>{FormikProps.errors.email}</Text>}
+                      
                         <View style={styles.InputContainer}>
                             <TextInput placeholder="Email" style={styles.Input}
                                 onChangeText={FormikProps.handleChange('email')}
@@ -47,7 +84,7 @@ export default function Login({ navigation }) {
 
                             />
                         </View>
-                        {FormikProps.errors.password && <Text style={styles.Error}>{FormikProps.errors.password}</Text>}
+                       
                         <View style={styles.InputContainer}>
 
                             <TextInput placeholder="password" secureTextEntry={true}
@@ -153,9 +190,9 @@ const styles = StyleSheet.create({
 });
 
 const loginValidations = yup.object().shape({
-    email: yup.string().email().required("need email"),
+    email: yup.string().email().required(),
     password: yup
         .string()
         .min(8)
-        .required('Password is required'),
+        .required(),
 });

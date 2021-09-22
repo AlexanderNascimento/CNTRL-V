@@ -1,9 +1,11 @@
-import React from 'react';
+import React,{useEffect,useState} from 'react';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { Dimensions, Image, StyleSheet, TouchableOpacity, View, Text, useWindowDimensions } from "react-native";
 import Theme from '../Constants/Theme';
 import Images from '../Constants/Images';
 import { AntDesign } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 //screens
 import Map from '../Screens/Map';
 import Historic from '../Screens/Historic';
@@ -23,37 +25,26 @@ const Options = {
   headerTintColor: '#fff',
 };
 
-function CustomDrawerContent({ ...rest }) {
-  return (
-    <DrawerContentScrollView >
-
-      <TouchableOpacity onPress={() => rest.navigation.closeDrawer()} style={{ width: 40, height: 40, backgroundColor: Theme.COLORS.TRANSPARENT, margin: '5%' }} >
-        <AntDesign name="menufold" size={25} color={Theme.COLORS.DEFAULT} />
-      </TouchableOpacity>
-      <View style={styles.header}>
-        <View style={styles.logo}>
-          <Image style={{ width: 100, height: 100 }} source={Images.LogoNavbar} />
-        </View>
-
-        <Text style={styles.HeaderName}>Camile Pedro</Text>
-        <Text style={styles.HeaderID}>ID SUS: 666999666-24</Text>
-      </View>
-
-
-
-      <DrawerItemList {...rest} />
-      <DrawerItem
-        label={() => <AntDesign name="logout" size={24} style={{ marginLeft: 15 }} color={Theme.COLORS.MUTED} />}
-        onPress={() => rest.navigation.popToTop()}
-
-      />
-    </DrawerContentScrollView>);
-}
-
-
 
 export default function Dashboard() {
   const dimensions = useWindowDimensions();
+  const [user,setUser]=useState([])
+
+
+
+
+
+
+  useEffect(() => {
+    async function getUser(){
+      let user= await AsyncStorage.getItem('userData');
+      let json = JSON.parse(user);
+      setUser(json);
+    }
+    getUser();
+    },[])
+    
+
 
   return (
     <Drawer.Navigator initialRouteName="Historico"
@@ -83,6 +74,42 @@ export default function Dashboard() {
       <Drawer.Screen name="Mapa" component={Map} options={Options} />
     </Drawer.Navigator>
   );
+
+
+
+
+
+
+  function CustomDrawerContent({ ...rest }) {
+ 
+    return (
+      <DrawerContentScrollView >
+  
+        <TouchableOpacity onPress={() => rest.navigation.closeDrawer()} style={{ width: 40, height: 40, backgroundColor: Theme.COLORS.TRANSPARENT, margin: '5%' }} >
+          <AntDesign name="menufold" size={25} color={Theme.COLORS.DEFAULT} />
+        </TouchableOpacity>
+        <View style={styles.header}>
+          <View style={styles.logo}>
+            <Image style={{ width: 100, height: 100 }} source={Images.LogoNavbar} />
+          </View>
+  
+          <Text style={styles.HeaderName}>{user.tb01_Name} {user.tb01_LastName}</Text>
+          <Text style={styles.HeaderID}>ID SUS: {user.tb01_IdSus}</Text>
+        </View>
+  
+  
+  
+        <DrawerItemList {...rest} />
+        <DrawerItem
+          label={() => <AntDesign name="logout" size={24} style={{ marginLeft: 15 }} color={Theme.COLORS.MUTED} />}
+          onPress={async () =>{ 
+            await AsyncStorage.clear();
+            rest.navigation.popToTop()}}
+  
+        />
+      </DrawerContentScrollView>);
+  }
+
 }
 
 const styles = StyleSheet.create({

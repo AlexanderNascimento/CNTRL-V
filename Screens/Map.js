@@ -46,8 +46,8 @@ export default function App() {
           <Marker
             key={point.id}
             coordinate={point.coord}
-            title={point.title}
-            description={point.description}
+            title={point.Name}
+            description={point.Address}
             pinColor={Theme.COLORS.SECONDARY}
           />
         ))}
@@ -62,8 +62,8 @@ export default function App() {
         {Points.map(point => (
           <View key={point.id} style={styles.ItensContainer}>
             <View style={styles.ItensHeader}>
-              <Text style={styles.ItensHeaderTitle}>{point.title}</Text>
-              <Text style={styles.ItensHeaderCep}>{point.cep}</Text>
+              <Text style={styles.ItensHeaderTitle}>{point.Name}</Text>
+              <Text style={styles.ItensHeaderCep}>{point.Address}</Text>
             </View>
             <View style={styles.ItensFooter}>
               <TouchableOpacity style={styles.ItensButton} onPress={() => goTo(point.coord)}>
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   },
   ItensHeaderTitle: {
     color: Theme.COLORS.DEFAULT,
-    fontSize: 50,
+    fontSize: 20,
     fontWeight: 'bold'
   },
   ItensHeaderCep: {

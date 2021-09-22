@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     View, StyleSheet, SafeAreaView, KeyboardAvoidingView,
-    TouchableOpacity, TextInput, Text, TouchableWithoutFeedback
+    TouchableOpacity, TextInput, Text, TouchableWithoutFeedback,ScrollView
 } from 'react-native';
 import Statusbar from '../Constants/StatusBar';
 import DatePicker from 'react-native-datepicker';
@@ -19,6 +19,7 @@ import * as yup from 'yup';
 export default function Register({ navigation }) {
     const [date, setDate] = useState('');
     const [gen, SetGen] = useState();
+    const [error,setError]=useState(false);
 
     const colorMale = useSharedValue(1);
     const sizeMale = useSharedValue(50);
@@ -66,31 +67,33 @@ export default function Register({ navigation }) {
 
 
             <Formik
-                initialValues={{ name: '', sobrenome: '', email: '', password: '', idSus: '', date: '', gen: '' }}
+                initialValues={{ nome: '', sobrenome: '', email: '', password: '', idSus: '', date: '', gen: '' }}
                 onSubmit={(values, actions) => {
-                    //alert(JSON.stringify(values,null,2));
-                    actions.resetForm();
-                    navigation.navigate('RegisterSecondFase');
+                    
+                  
+                    RegisterFunc(values,actions);
+                   
+                    
                 }}
             >
                 {(FormikProps) => (
 
-
+                    <ScrollView style={styles.Scroll}>
                     <KeyboardAvoidingView style={styles.Form}>
                         <View style={styles.FormInputsContainer}>
                             <TextInput placeholder="Nome" style={styles.FormInputs}
-                                onChangeText={FormikProps.handleChange('sobrenome')}
-                                onBlur={FormikProps.handleBlur('sobrenome')}
-                                name="sobrenome"
-                                value={FormikProps.values.sobrenome}
+                                onChangeText={FormikProps.handleChange('nome')}
+                                onBlur={FormikProps.handleBlur('nome')}
+                                name="nome"
+                                value={FormikProps.values.nome}
                             />
                         </View>
                         <View style={styles.FormInputsContainer}>
                             <TextInput placeholder="Sobrenome" style={styles.FormInputs}
-                                onChangeText={FormikProps.handleChange('name')}
-                                onBlur={FormikProps.handleBlur('name')}
-                                name="name"
-                                value={FormikProps.values.name} />
+                                onChangeText={FormikProps.handleChange('sobrenome')}
+                                onBlur={FormikProps.handleBlur('sobrenome')}
+                                name="sobrenome"
+                                value={FormikProps.values.sobrenome} />
                         </View>
                         <View style={styles.FormInputsContainer}>
                             <TextInput placeholder="ID SUS" style={styles.FormInputs}
@@ -99,13 +102,17 @@ export default function Register({ navigation }) {
                                 name="idSus"
                                 value={FormikProps.values.idSus} />
                         </View>
-                        <View style={styles.FormInputsContainer}>
+                       
+                        <View style={[styles.FormInputsContainer]}>
                             <TextInput placeholder="Email" style={styles.FormInputs}
                                 onChangeText={FormikProps.handleChange('email')}
                                 onBlur={FormikProps.handleBlur('email')}
                                 keyboardType="email-address"
                                 name="email"
                                 value={FormikProps.values.email} />
+                                 {error && 
+                        <Text style={{color:Theme.COLORS.ERROR,alignSelf:'center'}}>Email Já Existe</Text>
+                    }
                         </View>
                         <View style={styles.FormInputsContainer}>
                             <TextInput placeholder="Senha" style={styles.FormInputs}
@@ -165,12 +172,49 @@ export default function Register({ navigation }) {
 
 
                     </KeyboardAvoidingView>
+                    </ScrollView>
                 )}
             </Formik>
         </SafeAreaView>
     );
+    async function RegisterFunc(values,actions) {
+        
+        try {
+            const data = await fetch('http://192.168.0.102:3000/register', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: values.nome,
+                    lastName: values.sobrenome,
+                    email: values.email,
+                    password: values.password,
+                    idSus: values.idSus,
+                    date: values.date,
+                    gender: values.gen
+                  })
 
+            });
+            
+            let testando= await data.json();
+            
+            if(testando.aproved){
+                actions.resetForm();
+                setError(false);
+                navigation.navigate('RegisterSecondFase',{id:testando.id})
+            }else{
+                setError(true);
+            }
+            
+            
 
+        } catch (error) {
+            alert(error);
+        }
+
+    }
 
 
 }
@@ -180,19 +224,25 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignContent: 'center',
     },
+    Scroll:{
+        marginTop:20,
+    },
     FormInputsContainer: {
+        flexDirection: 'row',
         borderRadius: 60 / 2,
         borderWidth: 1,
         borderColor: Theme.COLORS.DEFAULT,
         backgroundColor: Theme.COLORS.WHITE,
         paddingBottom: 3,
+        paddingRight:20,
         paddingHorizontal: 5,
         marginBottom: 15,
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignContent: 'center',
         marginHorizontal: 30,
     },
     FormInputs: {
+        flex:1,
         height: 30,
         marginHorizontal: 10,
         color: Theme.COLORS.DEFAULT,

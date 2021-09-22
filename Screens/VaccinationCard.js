@@ -1,6 +1,6 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { SafeAreaView, StyleSheet, View, Dimensions, Text } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Theme from '../Constants/Theme';
 import Statusbar from '../Constants/StatusBar';
 
@@ -13,6 +13,11 @@ const { width, height } = Dimensions.get("screen");
 
 export default function VaccinationCard() {
 
+    useEffect(() => {
+        async function getCard(){
+            
+        }
+    },[])
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <Statusbar />

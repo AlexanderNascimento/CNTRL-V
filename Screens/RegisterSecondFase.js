@@ -6,14 +6,16 @@ import {
 import Statusbar from '../Constants/StatusBar';
 import Checkbox from 'expo-checkbox';
 import Theme from '../Constants/Theme';
-import RegisterVacinnes from '../Constants/tests/RegisterVacinnes';
 import DatePicker from 'react-native-datepicker';
 import { MaterialIcons } from '@expo/vector-icons';
 
-const { width, height } = Dimensions.get('screen');
-export default function RegisterSecondFase() {
 
-    const [list, setList] = useState(RegisterVacinnes);
+import Vacinas from '../Constants/tests/Vacinas';
+
+const { width, height } = Dimensions.get('screen');
+export default function RegisterSecondFase({ route,navigation}) {
+    const {id}=route.params;
+    const [list, setList] = useState(Vacinas);
     const [date, setDate] = useState('');
 
     function Separator() {
@@ -57,10 +59,28 @@ export default function RegisterSecondFase() {
         });
         setList(newData);
     }
-    function ShowItens() {
-
-        //alert(JSON.stringify(list.filter(item=> item.selected===true),null,1));
-        navigation.popToTop();
+  async   function RegisterVaccines() {
+    
+    const data= await fetch('http://192.168.0.101:3000/registerVacines', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            dados:list.filter(item=> item.selected===true),
+            id:id
+          })
+    });
+    alert('teasdasdad');
+        const json= await data.json();
+       
+        if(json.aproved){
+            navigation.popToTop();
+        }else{
+            alert('erro')
+        }
+        
     }
     function Lista({ item, index }) {
 
@@ -74,7 +94,7 @@ export default function RegisterSecondFase() {
                         onValueChange={
                             () => onValueChangeValue(item, index)
                         } />
-                    <Text>{item.nome}</Text>
+                    <Text>{item.name}</Text>
                 </View>
 
                 {item.selected &&
@@ -118,7 +138,12 @@ export default function RegisterSecondFase() {
                     />
                 </View>
                 <View style={styles.FooterButton}>
-                    <TouchableOpacity style={styles.Button} onPress={() => ShowItens()}>
+                    <TouchableOpacity style={styles.Button} onPress={() =>{
+                        
+                        RegisterVaccines()
+
+                    }
+                        }>
                         <Text style={styles.ButtonText}>Registrar-se</Text>
                     </TouchableOpacity>
                 </View>
@@ -153,7 +178,8 @@ const styles = StyleSheet.create({
     ListItens: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginHorizontal: 10,
+        width:width,
+       
         marginTop: 15,
     },
     ListDateContainer: {
